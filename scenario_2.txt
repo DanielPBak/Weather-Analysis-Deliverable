@@ -1,0 +1,38 @@
+Energy data records may need to be fixed if:
+(nws = NULL OR kw_net = NULL) AND siteID = 1528
+
+The query to find this is:
+
+SELECT siteID, id FROM dbo.t_EnergyData WHERE (siteID = 1528) AND (nws IS NULL OR kw_net IS NULL) 
+
+
+This query returns all of the relevant columns (key, foreign keys, damaged data).
+
+We'll need to get all of the damaged data and keys from WOPREnergy.
+
+SELECT siteID, id, P_ACT, V_WIN from dbo.WOPREnergy_GE WHERE siteID = 1528
+
+Now we need to merge these queries to produce the replacement data.
+
+
+SELECT q1.siteID, q1.id, P_ACT, V_WIN
+FROM
+(SELECT siteID, id FROM dbo.t_EnergyData WHERE (siteID = 1528) AND (nws IS NULL OR kw_net IS NULL)) q1
+INNER JOIN
+(SELECT siteID, id, P_ACT, V_WIN from dbo.WOPREnergy_GE WHERE siteID = 1528) q2
+ON q1.siteID = q2.siteID AND q1.id = q2.id
+
+
+Finally, we need to update t_EnergyData using this result.
+
+UPDATE dbo.t_EnergyData
+SET kw_net = P_ACT, nws = V_WIN
+FROM
+(SELECT q1.siteID, q1.id, P_ACT, V_WIN
+FROM
+(SELECT siteID, id FROM dbo.t_EnergyData WHERE (siteID = 1528) AND (nws IS NULL OR kw_net IS NULL)) q1
+INNER JOIN
+(SELECT siteID, id, P_ACT, V_WIN from dbo.WOPREnergy_GE WHERE siteID = 1528) q2
+ON q1.siteID = q2.siteID AND q1.id = q2.id) a1
+WHERE
+a1.siteID = dbo.t_EnergyData.siteID AND a1.id = dbo.t_EnergyData.id
