@@ -5,21 +5,17 @@
 const express = require('express')
 const app = express()
 const PythonShell = require('python-shell')
-const morgan = require("morgan")
 const path = require("path")
 const schedule = require("node-schedule")
-const read_last_lines = require("read-last-line")
 const fs = require('fs');
 
 
 config = {
   username:"DanielPBak",
-  plotly_api_key:"CENSORED"
+  plotly_api_key:"MsBeIVHIvhteb4j4BARe"
 }
 const plotly = require('plotly')(config['username'], config['plotly_api_key'])
 
-
-app.use(morgan('tiny'))
 const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
@@ -28,12 +24,12 @@ app.locals.basedir = path.join(__dirname, 'views');
 
 
 
-app.listen(3000, () => console.log('Example app listening on port 3000!'))
+app.listen(3000, () => console.log('Server open on port 3000'))
 app.set('view engine', 'pug')
 month = ""
 year = ""
 
-var passed_results = {warmest: [' ', ' '], coldest: [' ',' ',], sum_precip:' ', days_above:' '}
+var passed_results = {warmest: [' ', ' '], coolest: [' ',' ',], total_precipitation:' ', days_above_50:' '}
 var weather_data = []
 
 
@@ -46,7 +42,7 @@ var j = schedule.scheduleJob('00 * * * *', function(){
 
 function update_from_weather_log(){
   new_weather_data = []
-  fs.readFile('weather_log.csv', 'utf-8', function(err, data) {
+  fs.readFile('weather_logs.csv', 'utf-8', function(err, data) {
     if (err){
       if (err.code == "ENOENT"){
         weather_data = []
@@ -60,7 +56,7 @@ function update_from_weather_log(){
     var lines = data.trim().split('\n');
     lines = lines.slice(-6).reverse();
     
-    if (lines.slice(-1)[0].startsWith("update")){
+    if (lines.slice(-1)[0].startsWith("time_stamp")){
       lines = lines.slice(0,-1)
     }
 
@@ -84,33 +80,37 @@ console.log("read weather data")
 function search_weather(options, req, res){
   console.log(options['month'], options['year'])
   PythonShell.run('weather_search.py', options, function (err, results) {
-    console.log('running python scripto')
     if (err) throw err;
     // results is an array consisting of messages collected during execution
     results.forEach(result => {
       passed_results = result
-      
     });
-    res.render('scenario_1', {coldest: passed_results['coldest'], warmest:passed_results['warmest'],
-    days_above:passed_results['max_gust_speed'], precipitation:passed_results['sum_precip'], weather_data:weather_data})
+    console.log(passed_results)
+    res.render('scenario_1', {coolest: passed_results['coolest'], warmest:passed_results['warmest'],
+    days_above_50:passed_results['days_above_50'], total_precipitation:passed_results['total_precipitation'], weather_data:weather_data})
   });
 
 }
 
 app.get('/', function(req, res){
-  res.send('<p><a href="/scenario_1">Scenario 1</a></p>\n')
+  res.redirect('scenario_1')
 
 });
 
 
-app.get('/weather_log.csv', function(req, res){
+app.get('/weather_logs.csv', function(req, res){
   console.log('sending weather log')
-  filePath = 'weather_log.csv'
+  filePath = 'weather_logs.csv'
   res.download(filePath)
 })
 
 app.get('/scenario_2', function(req, res){
   res.render('scenario_2')
+  res.end()
+})
+
+app.get('/assumptions', function(req, res){
+  res.render('assumptions')
   res.end()
 })
 
@@ -142,6 +142,7 @@ app.get('/scenario_1', function (req, res) {
       }},
     yaxis: {
       title: "THEORETICAL POWER (kW/h)",
+      position:0,
       titlefont: {
         family: "Arial, sans-serif",
         size: 18,
@@ -166,14 +167,14 @@ app.get('/scenario_1', function (req, res) {
   });
   
 
-  res.render('scenario_1', {coldest: passed_results['coldest'], warmest:passed_results['warmest'],
-   days_above:passed_results['max_gust_speed'], precipitation:passed_results['sum_precip'], weather_data:weather_data})
+  res.render('scenario_1', {coolest: passed_results['coolest'], warmest:passed_results['warmest'],
+   days_above_50:passed_results['days_above_50'], total_precipitation:passed_results['total_precipitation'], weather_data:weather_data})
   console.log('done rendering')
+  console.log(passed_results)
 });
 
 
 app.post('/weather_query', function (req, res) {
-  //update_from_weather_log()
   console.log('query!')
   year = req.body['year']
   month = req.body['month']

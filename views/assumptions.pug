@@ -1,0 +1,44 @@
+
+doctype html
+html
+   head
+     style
+         include Tables/css/style.css
+         include submit_form/css/style.css
+body
+    div(align='center')
+        h1 Assumptions and other information
+        a(href='scenario_1') Scenario 1
+        br
+        a(href='scenario_2') Scenario 2
+    .text_wrapper
+            h3 Stack Justification
+            br
+            br
+            p
+            | node.js was used to host the web server, with aws EC2 hosting the nodejs instance. Python was used for some data retrieval and manipulation tasks. Pug was used for dynamic html display, and open-source css was used to style the site. These were chosen because I am most familiar with them.
+            br
+            br
+            p
+            | node.js libraries: express, pythonshell, path, schedule, fs, plotly. Express was chosen because it provides a simple way to deal with requests, pythonshell and schedule were used to launch and schedule python tasks, path and fs were used for file manipulation. Plotly was used as a lightweight chart generation and hosting tool.
+            br
+            br
+            p
+            | Python libraries: pandas, sys, json, urllib, os. Pandas was used for data manipulation, json for transferring data to the nodejs process, urllib to access the online API.
+            br
+            br
+            br
+            h3 Assumptions
+            br
+            p
+            | That all wind speed was measured as a positive integer, except for instances where it is "<32".
+            br
+            | That precipitation rounded to 3 decimal places was sufficiently precise.
+            br
+            | That the API is always presented in the same format
+            br
+            | That we are only looking at the station with ID 49368, and not any other Pincher Creek stations.
+            br
+            | That the CSV downloaded from http://climate.weather.gc.ca/ will always start with 25 lines of not-useful data.
+            br
+            | That numeric fields (such as temperature) will not have erronous, non-numeric values.

@@ -1,0 +1,65 @@
+
+doctype html
+html
+   head
+     style
+         include Tables/css/style.css
+         include submit_form/css/style.css
+body
+    div(align='center')
+        h1 Scenario 2
+        a(href='scenario_1') Scenario 1
+        br
+        a(href='assumptions') Assumptions and Expalantions
+    .text_wrapper
+        p
+        | Energy data records may need to be fixed if:
+        br
+        | (nws = NULL OR kw_net = NULL) AND siteID = 1528
+        p The query to find this is:
+        p
+        | SELECT siteID, id FROM dbo.t_EnergyData WHERE (siteID = 1528) AND (nws IS NULL OR kw_net IS NULL)
+        p
+        br
+        | This query returns all of the relevant columns (key, foreign keys, damaged data).
+        p We'll need to get all of the damaged data and keys from WOPREnergy.
+        p SELECT siteID, id, P_ACT, V_WIN from dbo.WOPREnergy_GE WHERE siteID = 1528
+        p Now we need to merge these queries to produce the replacement data.
+        p
+        br
+        | SELECT q1.siteID, q1.id, P_ACT, V_WIN
+        br
+        | FROM
+        br
+        | (SELECT siteID, id FROM dbo.t_EnergyData WHERE (siteID = 1528) AND (nws IS NULL OR kw_net IS NULL)) q1
+        br
+        | INNER JOIN
+        br
+        | (SELECT siteID, id, P_ACT, V_WIN from dbo.WOPREnergy_GE WHERE siteID = 1528) q2
+        br
+        | ON q1.siteID = q2.siteID AND q1.id = q2.id
+        p
+        br
+        | Finally, we need to update t_EnergyData using this result.
+        p
+        | UPDATE dbo.t_EnergyData
+        br
+        | SET kw_net = P_ACT, nws = V_WIN
+        br
+        | FROM
+        br
+        | (SELECT q1.siteID, q1.id, P_ACT, V_WIN
+        br
+        | FROM
+        br
+        | (SELECT siteID, id FROM dbo.t_EnergyData WHERE (siteID = 1528) AND (nws IS NULL OR kw_net IS NULL)) q1
+        br
+        | INNER JOIN
+        br
+        | (SELECT siteID, id, P_ACT, V_WIN from dbo.WOPREnergy_GE WHERE siteID = 1528) q2
+        br
+        | ON q1.siteID = q2.siteID AND q1.id = q2.id) a1
+        br
+        | WHERE
+        br
+        | a1.siteID = dbo.t_EnergyData.siteID AND a1.id = dbo.t_EnergyData.id
