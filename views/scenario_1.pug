@@ -11,7 +11,7 @@ body
     a(href='assumptions') Justification and Assumptions
     .wrapper
       .table
-        .row.header.blue
+        .row.header
           .cell(align='left')
             | Temperature Data
           .cell(align='right')
@@ -93,9 +93,9 @@ body
                 | Theoretical Power (kW)
         each entry in weather_data
             .row
-                .cell(align='right')
+                .bordered_cell(align='right')
                 each item in entry
-                    .cell(align='right')=item
+                    .bordered_cell(align='right')=item
     form(method='get', action='weather_logs.csv')
         button(type='submit') Download All Logs (.csv)
 
