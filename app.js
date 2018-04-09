@@ -11,8 +11,8 @@ const fs = require('fs');
 
 
 config = {
-  username:"DanielPBak",
-  plotly_api_key:"CENSORED"
+  username:"TransAlta-Test",
+  plotly_api_key:"lLtIbZ4vlITuy3civGT4"
 }
 const plotly = require('plotly')(config['username'], config['plotly_api_key'])
 
@@ -39,6 +39,58 @@ var j = schedule.scheduleJob('00 * * * *', function(){
     if (err) throw err;
   })
 });
+
+var i = schedule.scheduleJob('02 * * * *', function(){
+  chart_data = weather_data.reverse()
+  x = []
+  y = []
+  chart_data.forEach(function(item){
+    x.push(item[0])
+    y.push(item[5])
+  })
+  var data = [
+    {
+      x: x,
+      y: y,
+      type: "scatter"
+    }
+  ];
+  var layout = {
+    title: "Theoretical Power Over Time",
+    xaxis: {
+      title: "TIMESTAMP",
+      titlefont: {
+        family: "Arial, sans-serif",
+        size: 18,
+        color: "black"
+      }},
+    yaxis: {
+      title: "THEORETICAL POWER (kW/h)",
+      position:0,
+      titlefont: {
+        family: "Arial, sans-serif",
+        size: 18,
+        color: "black"
+      }},
+    autosize: false,
+    width: 800,
+    height: 600,
+    margin: {
+      l: 50,
+      r: 50,
+      b: 100,
+      t: 100,
+      pad: 4
+    },
+    paper_bgcolor: "#E6E6FA",
+    plot_bgcolor: "white"
+  }
+  var graphOptions = {layout: layout, filename: "transalta-chart", fileopt: "overwrite"};
+  plotly.plot(data, graphOptions, function (err, msg) {
+      console.log(msg);
+      console.log(err);
+  });
+})
 
 function update_from_weather_log(){
   new_weather_data = []
@@ -117,54 +169,7 @@ app.get('/assumptions', function(req, res){
 app.get('/scenario_1', function (req, res) {
   update_from_weather_log()
   console.log(weather_data)
-  chart_data = weather_data.reverse()
-  x = []
-  y = []
-  chart_data.forEach(function(item){
-    x.push(item[0])
-    y.push(item[5])
-  })
-  var data = [
-    {
-      x: x,
-      y: y,
-      type: "scatter"
-    }
-  ];
-  var layout = {
-    title: "Theoretical Power Over Time",
-    xaxis: {
-      title: "TIMESTAMP",
-      titlefont: {
-        family: "Arial, sans-serif",
-        size: 18,
-        color: "black"
-      }},
-    yaxis: {
-      title: "THEORETICAL POWER (kW/h)",
-      position:0,
-      titlefont: {
-        family: "Arial, sans-serif",
-        size: 18,
-        color: "black"
-      }},
-    autosize: false,
-    width: 800,
-    height: 600,
-    margin: {
-      l: 50,
-      r: 50,
-      b: 100,
-      t: 100,
-      pad: 4
-    },
-    paper_bgcolor: "#E6E6FA",
-    plot_bgcolor: "white"
-  }
-  var graphOptions = {layout: layout, filename: "transalta-chart", fileopt: "overwrite"};
-  plotly.plot(data, graphOptions, function (err, msg) {
-      console.log(msg);
-  });
+
   
 
   res.render('scenario_1', {coolest: passed_results['coolest'], warmest:passed_results['warmest'],
