@@ -12,7 +12,7 @@ const fs = require('fs');
 
 config = {
   username:"DanielPBak",
-  plotly_api_key:"MsBeIVHIvhteb4j4BARe"
+  plotly_api_key:"CENSORED"
 }
 const plotly = require('plotly')(config['username'], config['plotly_api_key'])
 
