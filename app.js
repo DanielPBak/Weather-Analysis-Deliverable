@@ -94,7 +94,7 @@ var i = schedule.scheduleJob('02 * * * *', function () {
         }
       },
       yaxis: {
-        title: "THEORETICAL POWER (kW/h)",
+        title: "THEORETICAL POWER (kW)",
         position: 0,
         titlefont: {
           family: "Arial, sans-serif",
