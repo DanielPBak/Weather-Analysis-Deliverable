@@ -84,9 +84,12 @@ var i = schedule.scheduleJob('02 * * * *', function () {
     console.log(data);
     console.log(chart_data);
     var layout = {
+      automargin: true,
       title: "Theoretical Power Over Time",
       xaxis: {
+        position: 0,
         title: "TIMESTAMP",
+        autotick: true,
         titlefont: {
           family: "Arial, sans-serif",
           size: 18,
@@ -95,7 +98,7 @@ var i = schedule.scheduleJob('02 * * * *', function () {
       },
       yaxis: {
         title: "THEORETICAL POWER (kW)",
-        position: 0,
+        position: -1,
         titlefont: {
           family: "Arial, sans-serif",
           size: 18,
@@ -104,11 +107,11 @@ var i = schedule.scheduleJob('02 * * * *', function () {
       },
       autosize: false,
       width: 800,
-      height: 600,
+      height: 800,
       margin: {
         l: 50,
         r: 50,
-        b: 100,
+        b: 200,
         t: 100,
         pad: 4
       },
