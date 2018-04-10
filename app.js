@@ -8,7 +8,8 @@ const PythonShell = require('python-shell')
 const path = require("path")
 const schedule = require("node-schedule")
 const fs = require('fs');
-
+var nocache = require('nocache')
+app.use(nocache())
 
 config = {
   username: "TransAlta-Test",
