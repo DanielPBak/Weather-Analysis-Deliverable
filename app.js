@@ -8,8 +8,15 @@ const PythonShell = require('python-shell')
 const path = require("path")
 const schedule = require("node-schedule")
 const fs = require('fs');
+var morgan = require('morgan')
 var nocache = require('nocache')
+
+
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
 app.use(nocache())
+app.use(morgan('combined', {stream: accessLogStream}))
+
+
 
 config = {
   username: "TransAlta-Test",
