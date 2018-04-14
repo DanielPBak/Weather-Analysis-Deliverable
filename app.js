@@ -3,6 +3,7 @@
  *******************************************************/
 
 const express = require('express')
+var subdomain = require('express-subdomain')
 const app = express()
 const PythonShell = require('python-shell')
 const path = require("path")
@@ -10,7 +11,7 @@ const schedule = require("node-schedule")
 const fs = require('fs');
 var morgan = require('morgan')
 var nocache = require('nocache')
-
+var router = express.Router();
 
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
 app.use(nocache())
@@ -30,8 +31,8 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 }));
 app.locals.basedir = path.join(__dirname, 'views');
 
-
-
+//pp.use(router)
+app.use(subdomain('ta', router))
 app.listen(3000, () => console.log('Server open on port 3000'))
 app.set('view engine', 'pug')
 month = ""
@@ -192,29 +193,28 @@ function search_weather(options, req, res) {
 
 }
 
-app.get('/', function (req, res) {
+router.get('/', function (req, res) {
   res.redirect('scenario_1')
-
 });
 
 
-app.get('/weather_logs.csv', function (req, res) {
+router.get('/weather_logs.csv', function (req, res) {
   console.log('sending weather log')
   filePath = 'weather_logs.csv'
   res.download(filePath)
 })
 
-app.get('/scenario_2', function (req, res) {
+router.get('/scenario_2', function (req, res) {
   res.render('scenario_2')
   res.end()
 })
 
-app.get('/assumptions', function (req, res) {
+router.get('/assumptions', function (req, res) {
   res.render('assumptions')
   res.end()
 })
 
-app.get('/scenario_1', function (req, res) {
+router.get('/scenario_1', function (req, res) {
   update_from_weather_log()
   console.log(weather_data)
 
@@ -229,7 +229,7 @@ app.get('/scenario_1', function (req, res) {
 });
 
 
-app.post('/weather_query', function (req, res) {
+router.post('/weather_query', function (req, res) {
   console.log('query!')
   year = req.body['year']
   month = req.body['month']
